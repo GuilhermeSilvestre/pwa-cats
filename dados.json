@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "nome": "Areia fina",
+      "quantidade": "10kg",
+      "inicio": "27/03",
+      "fim": "19/04"
+    },
+    {
+      "nome": "Nova areia",
+      "quantidade": "10kg",
+      "inicio": "19/04",
+      "fim": "13/05"
+    },
+    {
+      "nome": "Ração",
+      "quantidade": "10kg",
+      "inicio": "31/03",
+      "fim": "09/05"
+    },
+    {
+      "nome": "Nova Ração",
+      "quantidade": "10kg",
+      "inicio": "09/05",
+      "fim": ""
+    }
+  ]
+}

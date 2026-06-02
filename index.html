@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Controle</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#222;--border:#ddd}
+.dark{--bg:#111827;--card:#1f2937;--text:#f3f4f6;--border:#374151}
+body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:20px;max-width:1200px;margin:auto}
+.card{background:var(--card);padding:20px;border-radius:12px;margin:15px 0}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}
+button{padding:8px 12px;margin:4px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.item{border:1px solid var(--border);padding:8px;border-radius:8px}
+.hidden{display:none}
+.stats{display:flex;gap:20px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<div class="card">
+<button id="themeBtn">🌙 Tema</button>
+<button id="exportBtn">💾 Exportar JSON</button>
+</div>
+
+<div class="card">
+<h2>Consumo</h2>
+<div class="stats">
+<div id="mediaAreia"></div>
+<div id="mediaRacao"></div>
+</div>
+<table>
+<thead>
+<tr>
+<th>Item</th><th>Qtd</th><th>Início</th><th>Fim</th><th>Duração</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<script>
+let dados = {items:[]};
+
+function diasEntre(i,f){
+ if(!f) return null;
+ const [d1,m1,a1]=i.split('/').map(Number);
+ const [d2,m2,a2]=f.split('/').map(Number);
+ const dt1=new Date(a1,m1-1,d1);
+ const dt2=new Date(a2,m2-1,d2);
+ return Math.round((dt2-dt1)/(1000*60*60*24));
+}
+
+function render(){
+ const tbody=document.getElementById('tbody');
+ tbody.innerHTML='';
+
+ let areia=[];
+ let racao=[];
+
+ dados.items.forEach(item=>{
+   const dias=diasEntre(item.inicio,item.fim);
+
+   if(dias){
+     if(item.nome.toLowerCase().includes('areia')) areia.push(dias);
+     if(item.nome.toLowerCase().includes('ração') || item.nome.toLowerCase().includes('racao')) racao.push(dias);
+   }
+
+   tbody.innerHTML += `<tr>
+   <td>${item.nome}</td>
+   <td>${item.quantidade}</td>
+   <td>${item.inicio}</td>
+   <td>${item.fim || '-'}</td>
+   <td>${dias ? dias + ' dias' : 'Em andamento'}</td>
+   </tr>`;
+ });
+
+ const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'-';
+
+ document.getElementById('mediaAreia').innerHTML='Média Areia: '+avg(areia)+' dias';
+ document.getElementById('mediaRacao').innerHTML='Média Ração: '+avg(racao)+' dias';
+}
+
+document.getElementById('exportBtn').onclick=()=>{
+ const blob=new Blob([JSON.stringify(dados,null,2)],{type:'application/json'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='dados.json';
+ a.click();
+};
+
+if(localStorage.getItem('theme')==='dark'){
+ document.body.classList.add('dark');
+}
+
+document.getElementById('themeBtn').onclick=()=>{
+ document.body.classList.toggle('dark');
+ localStorage.setItem('theme',
+ document.body.classList.contains('dark')?'dark':'light');
+};
+
+
+
+</script>
+
+</body>
+</html>
