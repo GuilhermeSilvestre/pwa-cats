@@ -102,6 +102,25 @@ document.getElementById('themeBtn').onclick=()=>{
 };
 
 
+async function carregarDados() {
+  try {
+    const response = await fetch('./dados.json');
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    dados = await response.json();
+
+    console.log('Dados carregados:', dados);
+
+    render();
+  } catch (err) {
+    console.error('Erro ao carregar dados.json', err);
+  }
+}
+
+carregarDados();
 
 </script>
 
