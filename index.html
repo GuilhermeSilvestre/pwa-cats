@@ -15,7 +15,63 @@ button{padding:8px 12px;margin:4px;cursor:pointer}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
 .item{border:1px solid var(--border);padding:8px;border-radius:8px}
 .hidden{display:none}
-.stats{display:flex;gap:20px;flex-wrap:wrap}
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:16px;
+    margin-bottom:20px;
+}
+.stat-card{
+    background:linear-gradient(135deg,#2563eb,#3b82f6);
+    color:white;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+
+.dark .stat-card{
+    background:linear-gradient(135deg,#1d4ed8,#2563eb);
+}
+
+.stat-label{
+    font-size:.9rem;
+    opacity:.85;
+    margin-bottom:8px;
+}
+
+.stat-value{
+    font-size:2rem;
+    font-weight:700;
+}
+
+.table-wrapper{
+    overflow-x:auto;
+}
+
+table{
+    min-width:700px;
+}
+
+@media(max-width:768px){
+
+    body{
+        padding:12px;
+    }
+
+    .card{
+        padding:15px;
+    }
+
+    button{
+        width:100%;
+        margin-bottom:8px;
+    }
+
+    .stat-value{
+        font-size:1.6rem;
+    }
+}
+  
 </style>
 </head>
 <body>
@@ -27,10 +83,23 @@ button{padding:8px 12px;margin:4px;cursor:pointer}
 
 <div class="card">
 <h2>Consumo</h2>
+
 <div class="stats">
-<div id="mediaAreia"></div>
-<div id="mediaRacao"></div>
+
+    <div class="stat-card">
+        <div class="stat-label">🐱 Média de duração da areia</div>
+        <div class="stat-value" id="mediaAreia">-</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-label">🍖 Média de duração da ração</div>
+        <div class="stat-value" id="mediaRacao">-</div>
+    </div>
+
 </div>
+
+<div class="table-wrapper">
+
 <table>
 <thead>
 <tr>
@@ -40,7 +109,8 @@ button{padding:8px 12px;margin:4px;cursor:pointer}
 <tbody id="tbody"></tbody>
 </table>
 </div>
-
+</div>
+  
 <script>
   let dados = { items: [] };
   
@@ -109,11 +179,11 @@ button{padding:8px 12px;margin:4px;cursor:pointer}
         ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1)
         : '-';
   
-    document.getElementById('mediaAreia').innerHTML =
-      'Média Areia: ' + avg(areia) + ' dias';
+    document.getElementById('mediaAreia').textContent =
+      avg(areia) + ' dias';
   
-    document.getElementById('mediaRacao').innerHTML =
-      'Média Ração: ' + avg(racao) + ' dias';
+    document.getElementById('mediaRacao').textContent =
+      avg(racao) + ' dias';
   }
   
   document.getElementById('exportBtn').onclick = () => {
