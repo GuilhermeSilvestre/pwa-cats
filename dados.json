@@ -3,25 +3,25 @@
     {
       "nome": "Areia fina",
       "quantidade": "10kg",
-      "inicio": "27/03",
-      "fim": "19/04"
+      "inicio": "27/03/2026",
+      "fim": "19/04/2026"
     },
     {
-      "nome": "Nova areia",
+      "nome": "Areia fina",
       "quantidade": "10kg",
-      "inicio": "19/04",
-      "fim": "13/05"
+      "inicio": "19/04/2026",
+      "fim": "13/05/2026"
     },
     {
       "nome": "Ração",
       "quantidade": "10kg",
-      "inicio": "31/03",
-      "fim": "09/05"
+      "inicio": "31/03/2026",
+      "fim": "09/05/2026"
     },
     {
-      "nome": "Nova Ração",
+      "nome": "Ração",
       "quantidade": "10kg",
-      "inicio": "09/05",
+      "inicio": "09/05/2026",
       "fim": ""
     }
   ]
