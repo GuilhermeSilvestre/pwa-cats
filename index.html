@@ -44,16 +44,30 @@ button{padding:8px 12px;margin:4px;cursor:pointer}
 <script>
   let dados = { items: [] };
   
-  function diasEntre(i, f) {
-    if (!f) return null;
-  
-    const [d1, m1, a1] = i.split('/').map(Number);
-    const [d2, m2, a2] = f.split('/').map(Number);
-  
-    const dt1 = new Date(a1, m1 - 1, d1);
-    const dt2 = new Date(a2, m2 - 1, d2);
-  
-    return Math.round((dt2 - dt1) / (1000 * 60 * 60 * 24));
+  function diasEntre(inicio, fim) {
+    if (!fim) return null;
+
+    const p1 = inicio.split('/');
+    const p2 = fim.split('/');
+
+    let dt1;
+    let dt2;
+
+    if (p1.length === 2) {
+      dt1 = new Date(2026, Number(p1[1]) - 1, Number(p1[0]));
+    } else {
+      dt1 = new Date(Number(p1[2]), Number(p1[1]) - 1, Number(p1[0]));
+    }
+
+    if (p2.length === 2) {
+      dt2 = new Date(2026, Number(p2[1]) - 1, Number(p2[0]));
+    } else {
+      dt2 = new Date(Number(p2[2]), Number(p2[1]) - 1, Number(p2[0]));
+    }
+
+    return Math.round(
+      (dt2 - dt1) / (1000 * 60 * 60 * 24)
+    );
   }
   
   function render() {
