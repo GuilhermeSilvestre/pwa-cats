@@ -6,248 +6,415 @@
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#111827">
-<title>Controle</title>
+<meta name="theme-color" content="#f5f7fb" id="theme-meta">
+<title>Controle de Consumo</title>
 <style>
-:root{--bg:#f5f7fb;--card:#fff;--text:#222;--border:#ddd}
-.dark{--bg:#111827;--card:#1f2937;--text:#f3f4f6;--border:#374151}
-body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:20px;max-width:1200px;margin:auto}
-.card{background:var(--card);padding:20px;border-radius:12px;margin:15px 0}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}
-button{padding:8px 12px;margin:4px;cursor:pointer}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
-.item{border:1px solid var(--border);padding:8px;border-radius:8px}
-.hidden{display:none}
-.stats{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:16px;
-    margin-bottom:20px;
-}
-.stat-card{
-    background:linear-gradient(135deg,#2563eb,#3b82f6);
-    color:white;
-    padding:20px;
-    border-radius:16px;
-    box-shadow:0 10px 25px rgba(0,0,0,.15);
+:root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --accent-areia: #eab308;
+    --accent-racao: #f97316;
 }
 
-.dark .stat-card{
-    background:linear-gradient(135deg,#1d4ed8,#2563eb);
+.dark {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
 }
 
-.stat-label{
-    font-size:.9rem;
-    opacity:.85;
-    margin-bottom:8px;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
-.stat-value{
-    font-size:2rem;
-    font-weight:700;
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    padding: 16px;
+    max-width: 800px;
+    margin: auto;
+    padding-bottom: 60px;
 }
 
-.table-wrapper{
-    overflow-x:auto;
+/* Header & Top Bar */
+.header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 8px 0;
 }
 
-table{
-    min-width:700px;
+.header-bar h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
-@media(max-width:768px){
+.actions {
+    display: flex;
+    gap: 8px;
+}
 
-    body{
-        padding:12px;
+button {
+    border: none;
+    background: var(--card);
+    color: var(--text-main);
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+}
+
+button:hover {
+    background: var(--border);
+}
+
+button.btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+}
+
+button.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+/* Cards de Estatísticas */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--card);
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+.stat-card.areia::before { background: var(--accent-areia); }
+.stat-card.racao::before { background: var(--accent-racao); }
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+/* Container de Listagem */
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 20px 0 10px 0;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Layout Responsivo: Tabela vira Cards no Mobile */
+.table-wrapper {
+    display: none; /* Escondido no mobile */
+}
+
+.mobile-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-card {
+    background: var(--card);
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px;
+}
+
+.item-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.item-badge {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: center;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: right;
+}
+
+.status-active {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.status-done {
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--text-muted);
+}
+
+.item-details {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    grid-column: 1;
+}
+
+/* Layout para Telas Maiores (Tablet/Desktop) */
+@media(min-width: 600px) {
+    body { padding: 32px; }
+    .stats { gap: 16px; }
+    .stat-value { font-size: 1.75rem; }
+    
+    .mobile-cards { display: none; } /* Esconde cards */
+    .table-wrapper { display: block; } /* Mostra tabela limpa */
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: var(--card);
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        overflow: hidden;
     }
 
-    .card{
-        padding:15px;
+    th, td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
     }
 
-    button{
-        width:100%;
-        margin-bottom:8px;
+    th {
+        background: rgba(0,0,0,0.02);
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
     }
 
-    .stat-value{
-        font-size:1.6rem;
-    }
+    tr:last-child td { border-bottom: none; }
 }
-  
 </style>
 </head>
 <body>
 
-<div class="card">
-<button id="themeBtn">🌙 Tema</button>
-<button id="exportBtn">💾 Exportar JSON</button>
+<div class="header-bar">
+    <h1>Controle Pet</h1>
+    <div class="actions">
+        <button id="themeBtn" aria-label="Mudar tema">🌙</button>
+        <button id="exportBtn" class="btn-primary">💾 Exportar</button>
+    </div>
 </div>
-
-<div class="card">
-<h2>Consumo</h2>
 
 <div class="stats">
-
-    <div class="stat-card">
-        <div class="stat-label">🐱 Média de duração da areia</div>
+    <div class="stat-card areia">
+        <div class="stat-label">Média Areia</div>
         <div class="stat-value" id="mediaAreia">-</div>
     </div>
-
-    <div class="stat-card">
-        <div class="stat-label">🍖 Média de duração da ração</div>
+    <div class="stat-card racao">
+        <div class="stat-label">Média Ração</div>
         <div class="stat-value" id="mediaRacao">-</div>
     </div>
-
 </div>
+
+<div id="content-mobile" class="mobile-cards"></div>
 
 <div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qtd</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Duração</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-desktop"></tbody>
+    </table>
+</div>
 
-<table>
-<thead>
-<tr>
-<th>Item</th><th>Qtd</th><th>Início</th><th>Fim</th><th>Duração</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-</div>
-</div>
-  
 <script>
-  let dados = { items: [] };
-  
-  function diasEntre(inicio, fim) {
-    if (!fim) return null;
+let dados = { items: [] };
 
+function diasEntre(inicio, fim) {
+    if (!fim) return null;
     const p1 = inicio.split('/');
     const p2 = fim.split('/');
+    const dt1 = new Date(Number(p1[2] || 2026), Number(p1[1]) - 1, Number(p1[0]));
+    const dt2 = new Date(Number(p2[2] || 2026), Number(p2[1]) - 1, Number(p2[0]));
+    return Math.round((dt2 - dt1) / (1000 * 60 * 60 * 24));
+}
 
-    let dt1;
-    let dt2;
+function separarEAgrupar(items) {
+    // 1. Divide os itens em duas categorias
+    let areias = items.filter(i => i.nome.toLowerCase().includes('areia'));
+    let racoes = items.filter(i => i.nome.toLowerCase().includes('raç') || i.nome.toLowerCase().includes('rac'));
+    let outros = items.filter(i => !areias.includes(i) && !racoes.includes(i));
 
-    if (p1.length === 2) {
-      dt1 = new Date(2026, Number(p1[1]) - 1, Number(p1[0]));
-    } else {
-      dt1 = new Date(Number(p1[2]), Number(p1[1]) - 1, Number(p1[0]));
-    }
+    // Função interna para ordenar por data de início de forma decrescente (mais recente primeiro)
+    const ordenarPorData = (a, b) => {
+        const d1 = a.inicio.split('/').reverse().join('-');
+        const d2 = b.inicio.split('/').reverse().join('-');
+        return d2.localeCompare(d1);
+    };
 
-    if (p2.length === 2) {
-      dt2 = new Date(2026, Number(p2[1]) - 1, Number(p2[0]));
-    } else {
-      dt2 = new Date(Number(p2[2]), Number(p2[1]) - 1, Number(p2[0]));
-    }
+    areias.sort(ordenarPorData);
+    racoes.sort(ordenarPorData);
 
-    return Math.round(
-      (dt2 - dt1) / (1000 * 60 * 60 * 24)
-    );
-  }
-  
-  function render() {
-    const tbody = document.getElementById('tbody');
+    // Retorna a lista unificada com os blocos sempre juntos
+    return [...areias, ...racoes, ...outros];
+}
+
+function render() {
+    const tbody = document.getElementById('tbody-desktop');
+    const mobileContainer = document.getElementById('content-mobile');
+    
     tbody.innerHTML = '';
-  
-    let areia = [];
-    let racao = [];
-  
-    dados.items.forEach(item => {
-      const dias = diasEntre(item.inicio, item.fim);
-  
-      if (dias) {
-        if (item.nome.toLowerCase().includes('areia')) {
-          areia.push(dias);
+    mobileContainer.innerHTML = '';
+
+    let totalDiasAreia = [];
+    let totalDiasRacao = [];
+
+    // Organiza os itens de forma inteligente (Agrupados por tipo)
+    const itensAgrupados = separarEAgrupar(dados.items);
+
+    itensAgrupados.forEach(item => {
+        const dias = diasEntre(item.inicio, item.fim);
+        const emAndamento = !item.fim;
+
+        if (dias) {
+            if (item.nome.toLowerCase().includes('areia')) totalDiasAreia.push(dias);
+            if (item.nome.toLowerCase().includes('raç') || item.nome.toLowerCase().includes('rac')) totalDiasRacao.push(dias);
         }
-  
-        if (
-          item.nome.toLowerCase().includes('ração') ||
-          item.nome.toLowerCase().includes('racao')
-        ) {
-          racao.push(dias);
-        }
-      }
-  
-      tbody.innerHTML += `
-        <tr>
-          <td>${item.nome}</td>
-          <td>${item.quantidade}</td>
-          <td>${item.inicio}</td>
-          <td>${item.fim || '-'}</td>
-          <td>${dias ? dias + ' dias' : 'Em andamento'}</td>
-        </tr>
-      `;
+
+        const duracaoTexto = emAndamento ? 'Em andamento' : `${dias} dias`;
+        const badgeClass = emAndamento ? 'status-active' : 'status-done';
+
+        // 1. Renderiza Versão Desktop (Tabela)
+        tbody.innerHTML += `
+            <tr>
+                <strong><td>${item.nome}</td></strong>
+                <td>${item.quantidade}</td>
+                <td>${item.inicio}</td>
+                <td>${item.fim || '-'}</td>
+                <td><span style="font-weight:500; color:${emAndamento ? '#3b82f6':'inherit'}">${duracaoTexto}</span></td>
+            </tr>
+        `;
+
+        // 2. Renderiza Versão Mobile (Cards Inteligentes sem scroll de tela)
+        mobileContainer.innerHTML += `
+            <div class="item-card">
+                <div class="item-name">${item.nome} (${item.quantidade})</div>
+                <div class="item-details">📅 ${item.inicio} até ${item.fim || 'agora'}</div>
+                <div class="item-badge ${badgeClass}">${duracaoTexto}</div>
+            </div>
+        `;
     });
-  
-    const avg = arr =>
-      arr.length
-        ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1)
-        : '-';
-  
-    document.getElementById('mediaAreia').textContent =
-      avg(areia) + ' dias';
-  
-    document.getElementById('mediaRacao').textContent =
-      avg(racao) + ' dias';
-  }
-  
-  document.getElementById('exportBtn').onclick = () => {
-    const blob = new Blob(
-      [JSON.stringify(dados, null, 2)],
-      { type: 'application/json' }
-    );
-  
+
+    const avg = arr => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) + ' dias' : '-';
+    document.getElementById('mediaAreia').textContent = avg(totalDiasAreia);
+    document.getElementById('mediaRacao').textContent = avg(totalDiasRacao);
+}
+
+// Controle de Tema
+const themeBtn = document.getElementById('themeBtn');
+const metaTheme = document.getElementById('theme-meta');
+
+function aplicarTema(tema) {
+    if (tema === 'dark') {
+        document.body.classList.add('dark');
+        themeBtn.textContent = '☀️';
+        metaTheme.setAttribute('content', '#0f172a');
+    } else {
+        document.body.classList.remove('dark');
+        themeBtn.textContent = '🌙';
+        metaTheme.setAttribute('content', '#f8fafc');
+    }
+}
+
+themeBtn.onclick = () => {
+    const novoTema = document.body.classList.contains('dark') ? 'light' : 'dark';
+    localStorage.setItem('theme', novoTema);
+    aplicarTema(novoTema);
+};
+
+// Inicializar Tema salvo
+aplicarTema(localStorage.getItem('theme') || 'light');
+
+// Exportar JSON
+document.getElementById('exportBtn').onclick = () => {
+    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'dados.json';
     a.click();
-  };
-  
-  if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark');
-  }
-  
-  document.getElementById('themeBtn').onclick = () => {
-    document.body.classList.toggle('dark');
-  
-    localStorage.setItem(
-      'theme',
-      document.body.classList.contains('dark')
-        ? 'dark'
-        : 'light'
-    );
-  };
-  
-  async function carregarDados() {
+};
+
+// Carregar Dados do arquivo externo
+async function carregarDados() {
     try {
-      const response = await fetch('./dados.json?v=' + Date.now());
-  
-      if (!response.ok) {
-        throw new Error(
-          'Erro ao carregar JSON: ' + response.status
-        );
-      }
-  
-      dados = await response.json();
-  
-      console.log('Dados carregados:', dados);
-  
-      render();
+        const response = await fetch('./dados.json?v=' + Date.now());
+        if (!response.ok) throw new Error('Erro ao carregar JSON');
+        dados = await response.json();
+        render();
     } catch (err) {
-      console.error(err);
+        console.error(err);
     }
-  }
-  
-  carregarDados();
+}
 
-  // === REGISTRO DO SERVICE WORKER (Adicionado aqui) ===
-  if ('serviceWorker' in navigator) {
+carregarDados();
+
+// Service Worker
+if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('Service Worker ativo para os Gatos:', reg.scope))
-        .catch(err => console.error('Erro ao registrar Service Worker:', err));
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('PWA carregado com sucesso.'))
+            .catch(err => console.error('Erro no SW:', err));
     });
-  }
-  </script>
-
+}
+</script>
 </body>
 </html>
