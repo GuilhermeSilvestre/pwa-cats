@@ -22,6 +22,12 @@
       "nome": "Areia fina",
       "quantidade": "10kg",
       "inicio": "04/07/2026",
+      "fim": "26/07/2026"
+    },
+    {
+      "nome": "Areia fina",
+      "quantidade": "10kg",
+      "inicio": "26/07/2026",
       "fim": ""
     },
     {
@@ -40,6 +46,12 @@
       "nome": "Ração",
       "quantidade": "10kg",
       "inicio": "18/06/2026",
+      "fim": "26/07/2026"
+    },
+    {
+      "nome": "Ração",
+      "quantidade": "10kg",
+      "inicio": "26/07/2026",
       "fim": ""
     }
   ]
