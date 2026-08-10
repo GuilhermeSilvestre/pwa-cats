@@ -112,6 +112,7 @@ button.btn-primary:hover {
     border: 1px solid var(--border);
     position: relative;
     overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .stat-card::before {
@@ -138,25 +139,34 @@ button.btn-primary:hover {
     font-weight: 700;
 }
 
-/* Container de Listagem */
-.section-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 20px 0 10px 0;
-    color: var(--text-muted);
+/* Divisões de Seção Modernas */
+.category-section {
+    margin-top: 28px;
+    margin-bottom: 12px;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 12px;
 }
 
-/* Layout Responsivo: Tabela vira Cards no Mobile */
-.table-wrapper {
-    display: none; /* Escondido no mobile */
-}
+.category-header.areia { color: var(--accent-areia); border-color: rgba(234, 179, 8, 0.3); }
+.category-header.racao { color: var(--accent-racao); border-color: rgba(249, 115, 22, 0.3); }
+.category-header.outros { color: var(--text-muted); }
 
+/* Layout Mobile Cards */
 .mobile-cards {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .item-card {
@@ -167,11 +177,27 @@ button.btn-primary:hover {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    position: relative;
+    overflow: hidden;
 }
+
+.item-card::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+}
+
+.item-card.is-areia::after { background: var(--accent-areia); }
+.item-card.is-racao::after { background: var(--accent-racao); }
 
 .item-name {
     font-weight: 600;
     font-size: 1.05rem;
+    padding-left: 6px;
 }
 
 .item-badge {
@@ -199,29 +225,36 @@ button.btn-primary:hover {
     font-size: 0.85rem;
     color: var(--text-muted);
     grid-column: 1;
+    padding-left: 6px;
 }
 
 /* Layout para Telas Maiores (Tablet/Desktop) */
+.table-wrapper {
+    display: none;
+}
+
 @media(min-width: 600px) {
     body { padding: 32px; }
     .stats { gap: 16px; }
     .stat-value { font-size: 1.75rem; }
     
-    .mobile-cards { display: none; } /* Esconde cards */
-    .table-wrapper { display: block; } /* Mostra tabela limpa */
+    .mobile-cards { display: none; }
+    .table-wrapper { display: block; }
 
-    table {
+    .custom-table {
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
         background: var(--card);
-        border-radius: 14px;
+        border-radius: 12px;
         border: 1px solid var(--border);
         overflow: hidden;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
 
     th, td {
-        padding: 14px 16px;
+        padding: 12px 16px;
         text-align: left;
         border-bottom: 1px solid var(--border);
     }
@@ -230,11 +263,13 @@ button.btn-primary:hover {
         background: rgba(0,0,0,0.02);
         color: var(--text-muted);
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
     tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(0,0,0,0.01); }
 }
 </style>
 </head>
@@ -259,22 +294,8 @@ button.btn-primary:hover {
     </div>
 </div>
 
-<div id="content-mobile" class="mobile-cards"></div>
-
-<div class="table-wrapper">
-    <table>
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Qtd</th>
-                <th>Início</th>
-                <th>Fim</th>
-                <th>Duração</th>
-            </tr>
-        </thead>
-        <tbody id="tbody-desktop"></tbody>
-    </table>
-</div>
+<!-- O conteúdo dinâmico estruturado por categorias vai aqui -->
+<div id="content-container"></div>
 
 <script>
 let dados = { items: [] };
@@ -288,13 +309,18 @@ function diasEntre(inicio, fim) {
     return Math.round((dt2 - dt1) / (1000 * 60 * 60 * 24));
 }
 
-function separarEAgrupar(items) {
-    // 1. Divide os itens em duas categorias
-    let areias = items.filter(i => i.nome.toLowerCase().includes('areia'));
-    let racoes = items.filter(i => i.nome.toLowerCase().includes('raç') || i.nome.toLowerCase().includes('rac'));
-    let outros = items.filter(i => !areias.includes(i) && !racoes.includes(i));
+function render() {
+    const container = document.getElementById('content-container');
+    container.innerHTML = '';
 
-    // Função interna para ordenar por data de início de forma decrescente (mais recente primeiro)
+    let totalDiasAreia = [];
+    let totalDiasRacao = [];
+
+    // Separa os itens nas categorias corretas
+    let areias = dados.items.filter(i => i.nome.toLowerCase().includes('areia'));
+    let racoes = dados.items.filter(i => i.nome.toLowerCase().includes('raç') || i.nome.toLowerCase().includes('rac'));
+    let outros = dados.items.filter(i => !areias.includes(i) && !racoes.includes(i));
+
     const ordenarPorData = (a, b) => {
         const d1 = a.inicio.split('/').reverse().join('-');
         const d2 = b.inicio.split('/').reverse().join('-');
@@ -303,55 +329,90 @@ function separarEAgrupar(items) {
 
     areias.sort(ordenarPorData);
     racoes.sort(ordenarPorData);
+    outros.sort(ordenarPorData);
 
-    // Retorna a lista unificada com os blocos sempre juntos
-    return [...areias, ...racoes, ...outros];
-}
+    const categorias = [
+        { titulo: '🏜️ Areia Sanitária', classe: 'areia', tipo: 'areia', lista: areias },
+        { titulo: '🥣 Ração', classe: 'racao', tipo: 'racao', lista: racoes },
+        { titulo: '📦 Outros Itens', classe: 'outros', tipo: 'outro', lista: outros }
+    ];
 
-function render() {
-    const tbody = document.getElementById('tbody-desktop');
-    const mobileContainer = document.getElementById('content-mobile');
-    
-    tbody.innerHTML = '';
-    mobileContainer.innerHTML = '';
+    categorias.forEach(cat => {
+        if (cat.lista.length === 0) return;
 
-    let totalDiasAreia = [];
-    let totalDiasRacao = [];
+        // Bloco da Categoria
+        const sectionDiv = document.createElement('div');
+        sectionDiv.className = 'category-section';
 
-    // Organiza os itens de forma inteligente (Agrupados por tipo)
-    const itensAgrupados = separarEAgrupar(dados.items);
-
-    itensAgrupados.forEach(item => {
-        const dias = diasEntre(item.inicio, item.fim);
-        const emAndamento = !item.fim;
-
-        if (dias) {
-            if (item.nome.toLowerCase().includes('areia')) totalDiasAreia.push(dias);
-            if (item.nome.toLowerCase().includes('raç') || item.nome.toLowerCase().includes('rac')) totalDiasRacao.push(dias);
-        }
-
-        const duracaoTexto = emAndamento ? 'Em andamento' : `${dias} dias`;
-        const badgeClass = emAndamento ? 'status-active' : 'status-done';
-
-        // 1. Renderiza Versão Desktop (Tabela)
-        tbody.innerHTML += `
-            <tr>
-                <strong><td>${item.nome}</td></strong>
-                <td>${item.quantidade}</td>
-                <td>${item.inicio}</td>
-                <td>${item.fim || '-'}</td>
-                <td><span style="font-weight:500; color:${emAndamento ? '#3b82f6':'inherit'}">${duracaoTexto}</span></td>
-            </tr>
-        `;
-
-        // 2. Renderiza Versão Mobile (Cards Inteligentes sem scroll de tela)
-        mobileContainer.innerHTML += `
-            <div class="item-card">
-                <div class="item-name">${item.nome} (${item.quantidade})</div>
-                <div class="item-details">📅 ${item.inicio} até ${item.fim || 'agora'}</div>
-                <div class="item-badge ${badgeClass}">${duracaoTexto}</div>
+        // Cabeçalho da Seção
+        sectionDiv.innerHTML = `
+            <div class="category-header ${cat.classe}">
+                ${cat.titulo}
             </div>
         `;
+
+        // 1. Versão Desktop (Tabela isolada por categoria)
+        const tableWrapper = document.createElement('div');
+        tableWrapper.className = 'table-wrapper';
+        
+        let tableRows = '';
+        cat.lista.forEach(item => {
+            const dias = diasEntre(item.inicio, item.fim);
+            const emAndamento = !item.fim;
+            if (dias) {
+                if (cat.tipo === 'areia') totalDiasAreia.push(dias);
+                if (cat.tipo === 'racao') totalDiasRacao.push(dias);
+            }
+            const duracaoTexto = emAndamento ? 'Em andamento' : `${dias} dias`;
+
+            tableRows += `
+                <tr>
+                    <td><strong>${item.nome}</strong></td>
+                    <td>${item.quantidade}</td>
+                    <td>${item.inicio}</td>
+                    <td>${item.fim || '-'}</td>
+                    <td><span style="font-weight:500; color:${emAndamento ? '#3b82f6':'inherit'}">${duracaoTexto}</span></td>
+                </tr>
+            `;
+        });
+
+        tableWrapper.innerHTML = `
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Qtd</th>
+                        <th>Início</th>
+                        <th>Fim</th>
+                        <th>Duração</th>
+                    </tr>
+                </thead>
+                <tbody>${tableRows}</tbody>
+            </table>
+        `;
+
+        // 2. Versão Mobile (Cards agrupados)
+        const mobileContainer = document.createElement('div');
+        mobileContainer.className = 'mobile-cards';
+
+        cat.lista.forEach(item => {
+            const dias = diasEntre(item.inicio, item.fim);
+            const emAndamento = !item.fim;
+            const duracaoTexto = emAndamento ? 'Em andamento' : `${dias} dias`;
+            const badgeClass = emAndamento ? 'status-active' : 'status-done';
+
+            mobileContainer.innerHTML += `
+                <div class="item-card is-${cat.classe}">
+                    <div class="item-name">${item.nome} (${item.quantidade})</div>
+                    <div class="item-details">📅 ${item.inicio} até ${item.fim || 'agora'}</div>
+                    <div class="item-badge ${badgeClass}">${duracaoTexto}</div>
+                </div>
+            `;
+        });
+
+        sectionDiv.appendChild(tableWrapper);
+        sectionDiv.appendChild(mobileContainer);
+        container.appendChild(sectionDiv);
     });
 
     const avg = arr => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) + ' dias' : '-';
@@ -381,7 +442,6 @@ themeBtn.onclick = () => {
     aplicarTema(novoTema);
 };
 
-// Inicializar Tema salvo
 aplicarTema(localStorage.getItem('theme') || 'light');
 
 // Exportar JSON
