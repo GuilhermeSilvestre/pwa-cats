@@ -64,6 +64,12 @@
       "nome": "Ração",
       "quantidade": "10kg",
       "inicio": "26/07/2026",
+      "fim": "02/09/2026"
+    },
+    {
+      "nome": "Ração",
+      "quantidade": "20kg",
+      "inicio": "02/09/2026",
       "fim": ""
     }
   ]
