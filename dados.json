@@ -46,6 +46,12 @@
       "nome": "Areia fina",
       "quantidade": "10kg",
       "inicio": "22/09/2026",
+      "fim": "08/10/2026"
+    },
+    {
+      "nome": "Areia fina",
+      "quantidade": "10kg",
+      "inicio": "08/10/2026",
       "fim": ""
     },
     {
